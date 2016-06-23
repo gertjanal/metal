@@ -29,24 +29,24 @@ import io.parsingdata.metal.expression.value.ValueExpression;
 
 public class Sub extends Token {
 
-    private final Token _op;
-    private final ValueExpression _addr;
+    public final Token op;
+    public final ValueExpression addr;
 
     public Sub(final Token op, final ValueExpression addr, final Encoding enc) {
         super(enc);
-        _op = checkNotNull(op, "op");
-        _addr = checkNotNull(addr, "addr");
+        this.op = checkNotNull(op, "op");
+        this.addr = checkNotNull(addr, "addr");
     }
 
     @Override
     protected ParseResult parseImpl(final String scope, final Environment env, final Encoding enc) throws IOException {
-        final OptionalValue ov = _addr.eval(env, enc);
+        final OptionalValue ov = addr.eval(env, enc);
         if (!ov.isPresent()) { return new ParseResult(false, env); }
         final long ref = ov.get().asNumeric().longValue();
         if (env.order.hasGraphAtRef(ref)) {
             return new ParseResult(true, env.newEnv(env.order.add(new ParseRef(ref, this, env.sequenceId + 1)), env.input, env.offset));
         }
-        final ParseResult res = _op.parse(scope, env.newEnv(env.order.addBranch(this), env.input, ref), enc);
+        final ParseResult res = op.parse(scope, env.newEnv(env.order.addBranch(this, env.sequenceId + 1), env.input, ref), enc);
         if (res.succeeded()) {
             return new ParseResult(true, env.newEnv(res.getEnvironment().order.closeBranch(), res.getEnvironment().input, env.offset));
         }
@@ -55,7 +55,7 @@ public class Sub extends Token {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "(" + _op + ", " + _addr + ")";
+        return getClass().getSimpleName() + "(" + op + ", " + addr + ")";
     }
 
 }

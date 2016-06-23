@@ -87,7 +87,7 @@
         visibility: 'hidden';
     }
 
-    #line {
+     #svg line {
         stroke: red;
         stroke-width: 3;
         stroke-linecap: round;
@@ -102,8 +102,8 @@ var columnCount = 32;
 function unpack(buffer, asBigEndian) {
     if (buffer.length == 1 || buffer.length == 2 || buffer.length == 4 || buffer.length == 6 || buffer.length == 8) {
          var value = 0;
-         for (var j = 0, i = asBigEndian ? buffer.length - 1 : 0; asBigEndian ? i &gt;= 0 : i &lt; buffer.length; asBigEndian ? i-- : i++, j++) {
-             value |= (buffer[i] &amp; 0xff) &lt;&lt; (j * 8);
+         for (var j = 0, i = asBigEndian ? buffer.length - 1 : 0; asBigEndian ? i >= 0 : i < buffer.length; asBigEndian ? i-- : i++, j++) {
+             value |= (buffer[i] & 0xff) << (j * 8);
          }
          return value;
     }
@@ -128,25 +128,30 @@ $(function() {
                 $('#values #be').text(unpack(buffer, true));
                 $('#values #le').text(unpack(buffer, false));
             });
-            $('#svg').css('visibility', 'visible');
+
+            if (definition[3].length > 0) {
+                var offset = $(this).offset();
+                $('.byte[position=' + definition[3][0] +']').each(function(index, value) {
+                    var byteOffset = $(value).offset();
+                    $('#line' + index).attr('x1', offset.left).attr('y1', offset.top).attr('x2',byteOffset.left).attr('y2',byteOffset.top);
+                });
+                $('#svg').css('visibility', 'visible');
+            }
         }
         else {
             $('#values #length').empty();
             $('#values #be').empty();
             $('#values #le').empty();
         }
-
-        var offset = $(this).offset();
-        $('#line').attr('x1', offset.left).attr('y1', offset.top).attr('x2',0).attr('y2',0);
-    }).on('keydown', 'numeric', function(e){-1!==$.inArray(e.keyCode,[46,8,9,27,13,110,190])||/65|67|86|88/.test(e.keyCode)&amp;&amp;(!0===e.ctrlKey||!0===e.metaKey)||35&lt;=e.keyCode&amp;&amp;40&gt;=e.keyCode||(e.shiftKey||48&gt;e.keyCode||57&lt;e.keyCode)&amp;&amp;(96&gt;e.keyCode||105&lt;e.keyCode)&amp;&amp;e.preventDefault()});
+    }).on('keydown', 'numeric', function(e){-1!==$.inArray(e.keyCode,[46,8,9,27,13,110,190])||/65|67|86|88/.test(e.keyCode)&&(!0===e.ctrlKey||!0===e.metaKey)||35<=e.keyCode&&40>=e.keyCode||(e.shiftKey||48>e.keyCode||57<e.keyCode)&&(96>e.keyCode||105<e.keyCode)&&e.preventDefault()});
 
     $('body').on('mouseleave', '.byte', function(){
         var position = parseInt($(this).attr('position'));
         $('.byte[position=' + position +']').each(function(index, value){
             $(value).removeClass('selected');
         });
-        $('#name').html('&amp;nbsp;')
-        $('#filePosition').html('&amp;nbsp;')
+        $('#name').html('&nbsp;')
+        $('#filePosition').html('&nbsp;')
         $('#svg').css('visibility', 'hidden');
     });
 
@@ -164,7 +169,7 @@ $(function() {
     $.each(locations, function(index, value) {
         var page = Math.floor(value / (pageSize / columnCount));
         if (page !== prevPage) {
-            $('#pagesOfInterest').append($('&lt;button&gt;').text('Page ' + page).attr('page', page));
+            $('#pagesOfInterest').append($('<button>').text('Page ' + page).attr('page', page));
             prevPage = page;
         }
     });
@@ -188,7 +193,7 @@ $(function() {
 
 var lastDefinition;
 function getDefinition(position) {
-    if (lastDefinition &amp;&amp; inRange(lastDefinition, position)) {
+    if (lastDefinition && inRange(lastDefinition, position)) {
         // Instead of reading all rows above to check if this is part of a multi-row def,
         // just cache the previous definition and check again.
         // Note that this only works for drawing the highlights, not for a mouseover event.
@@ -198,7 +203,7 @@ function getDefinition(position) {
     var rowIndex = $.inArray(Math.floor(position / columnCount), locations);
     if (rowIndex !== -1) {
         var row = data[rowIndex];
-        for (var i = 0; i &lt; row.length; i++) {
+        for (var i = 0; i < row.length; i++) {
             var definition = row[i];
             if (inRange(definition, position)) {
                 lastDefinition = definition;
@@ -211,7 +216,7 @@ function getDefinition(position) {
 function inRange(definition, position) {
     var offset = definition[0];
     var size = definition[1];
-    return position &gt;= offset &amp;&amp; position &lt; offset + size;
+    return position >= offset && position < offset + size;
 }
 
 function isStartOrEnd(definition, position) {
@@ -282,7 +287,7 @@ function getData(offset, size, callback) {
 
 function readPage() {
     var pageOffset = page * pageSize;
-    if (page &gt; 0) {
+    if (page > 0) {
         $('#prev').removeAttr('disabled');
     }
     else {
@@ -296,29 +301,29 @@ function readPage() {
         $('#hexview').empty();
         $('#asciiview').empty();
 
-        for (var row = 0; pagePosition &lt; buffer.length; row++) {
-            if (buffer.length - pagePosition &lt; columnCount) {
+        for (var row = 0; pagePosition < buffer.length; row++) {
+            if (buffer.length - pagePosition < columnCount) {
                 columnCount = buffer.length - position;
             }
 
             var hexNr = (pagePosition + pageOffset).toString(16);
-            var hexRow = $('&lt;div&gt;').addClass('row')
-                .append($('&lt;div&gt;').addClass('linenr').text(hexNr));
+            var hexRow = $('<div>').addClass('row')
+                .append($('<div>').addClass('linenr').text(hexNr));
 
-            $('#hexview').append(hexRow).append($('&lt;div&gt;').addClass('spacerRow row'));
+            $('#hexview').append(hexRow).append($('<div>').addClass('spacerRow row'));
 
-            var asciiRow = $('&lt;div&gt;').addClass('row');
-            $('#asciiview').append(asciiRow).append($('&lt;div&gt;').addClass('spacerRow row'));
+            var asciiRow = $('<div>').addClass('row');
+            $('#asciiview').append(asciiRow).append($('<div>').addClass('spacerRow row'));
 
-            for (var column = 0; column &lt; columnCount; column++, pagePosition++) {
+            for (var column = 0; column < columnCount; column++, pagePosition++) {
                 var filePosition = pageOffset + pagePosition;
                 var definition = getDefinition(filePosition);
 
-                var byte = buffer[pagePosition] &amp; 0xff;
+                var byte = buffer[pagePosition] & 0xff;
                 var hex = toHex(byte);
 
                 if (column % 2 == 0) {
-                    var spacer = $('&lt;span&gt;').addClass('spacer').html('&amp;nbsp;');
+                    var spacer = $('<span>').addClass('spacer').html('&nbsp;');
                     if (definition) {
                         if (!isStartOrEnd(definition, filePosition)) {
                             var rgb = hsv2rgb(getHue(definition[2]) % 360, 80, 100);
@@ -327,13 +332,13 @@ function readPage() {
                     }
                     hexRow.append(spacer);
                 }
-                var hexByte = $('&lt;span&gt;').addClass('byte').attr('position', filePosition).text(hex);
-                var hexByteWrapper = $('&lt;span&gt;').addClass('byteWrapper').append(hexByte);
+                var hexByte = $('<span>').addClass('byte').attr('position', filePosition).text(hex);
+                var hexByteWrapper = $('<span>').addClass('byteWrapper').append(hexByte);
                 hexRow.append(hexByteWrapper);
 
-                var character = byte &gt;= 32 &amp;&amp; byte &lt;= 126 ? String.fromCharCode(byte) : '\u00B7';
-                var asciiByte = $('&lt;span&gt;').addClass('byte').attr('position', filePosition).text(character);
-                var asciiByteWrapper = $('&lt;span&gt;').addClass('byteWrapper').append(asciiByte);
+                var character = byte >= 32 && byte <= 126 ? String.fromCharCode(byte) : '\u00B7';
+                var asciiByte = $('<span>').addClass('byte').attr('position', filePosition).text(character);
+                var asciiByteWrapper = $('<span>').addClass('byteWrapper').append(asciiByte);
                 asciiRow.append(asciiByteWrapper);
 
                 if (definition) {
@@ -374,7 +379,10 @@ function colorByte(wrapper, rgb, filePosition, definition) {
     <button id="next">Next page</button><br>
     <br>
 
-    <svg id="svg" style="visibility: hidden;"><line id="line" x1="1189" y1="390" x2="0" y2="0"/></svg>
+    <svg id="svg" style="visibility: hidden;">
+        <line id="line0" x1="0" y1="0" x2="0" y2="0"/>
+        <line id="line1" x1="0" y1="0" x2="0" y2="0"/>
+    </svg>
     <span id="filePosition"></span><span id="name">&nbsp;</span><br>
 
     <div id="hexview"></div>

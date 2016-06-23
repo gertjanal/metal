@@ -25,20 +25,20 @@ import io.parsingdata.metal.expression.value.ValueExpression;
 
 public class Ref implements ValueExpression {
 
-    private final String _name;
+    public final String name;
 
     public Ref(final String name) {
-        _name = checkNotNull(name, "name");
+        this.name = checkNotNull(name, "name");
     }
 
     @Override
     public OptionalValue eval(final Environment env, final Encoding enc) {
-        return OptionalValue.of(env.order.get(_name));
+        return OptionalValue.of(env.order.get(name));
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "(" + _name + ")";
+        return getClass().getSimpleName() + "(" + name + ")";
     }
 
 }

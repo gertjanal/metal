@@ -23,19 +23,19 @@ import io.parsingdata.metal.encoding.Encoding;
 
 public abstract class BinaryValueExpression implements ValueExpression {
 
-    private final ValueExpression _lop;
-    private final ValueExpression _rop;
+    public final ValueExpression lop;
+    public final ValueExpression rop;
 
     public BinaryValueExpression(final ValueExpression lop, final ValueExpression rop) {
-        _lop = checkNotNull(lop, "lop");
-        _rop = checkNotNull(rop, "rop");
+        this.lop = checkNotNull(lop, "lop");
+        this.rop = checkNotNull(rop, "rop");
     }
 
     @Override
     public OptionalValue eval(final Environment env, final Encoding enc) {
-        final OptionalValue lv = _lop.eval(env, enc);
+        final OptionalValue lv = lop.eval(env, enc);
         if (!lv.isPresent()) { return lv; }
-        final OptionalValue rv = _rop.eval(env, enc);
+        final OptionalValue rv = rop.eval(env, enc);
         if (!rv.isPresent()) { return rv; }
         return eval(lv.get(), rv.get(), env, enc);
     }
@@ -44,7 +44,7 @@ public abstract class BinaryValueExpression implements ValueExpression {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "(" + _lop + "," + _rop + ")";
+        return getClass().getSimpleName() + "(" + lop + "," + rop + ")";
     }
 
 }

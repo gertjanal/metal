@@ -40,6 +40,8 @@ public class SequenceIdTest {
         final StringBuilder builder = new StringBuilder();
         step(result.getEnvironment().order, builder);
 
+        System.out.println(builder);
+
         assertEquals(
             "[3] value: id\n" +
             "[4] value: other\n" +
@@ -56,6 +58,7 @@ public class SequenceIdTest {
             builder.append("[" + item.getSequenceId() + "] value: " + item.asValue().name + "\n");
             return;
         }
+        builder.append("[" + item.getSequenceId() + "] graph: " + item.getDefinition().getClass().getSimpleName() + "\n");
 
         step(item.asGraph().tail, builder);
         step(item.asGraph().head, builder);
