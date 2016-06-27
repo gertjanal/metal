@@ -84,13 +84,11 @@
         left: 0px;
         display: block;
         position: absolute;
-        visibility: 'hidden';
     }
 
-     #svg line {
-        stroke: red;
-        stroke-width: 3;
-        stroke-linecap: round;
+     #svg polygon {
+        stroke: black;
+        stroke-width: 1;
     }
 </style>
 <script src="https://code.jquery.com/jquery-1.11.3.js"></script>
@@ -130,12 +128,44 @@ $(function() {
             });
 
             if (definition[3].length > 0) {
-                var offset = $(this).offset();
-                $('.byte[position=' + definition[3][0] +']').each(function(index, value) {
-                    var byteOffset = $(value).offset();
-                    $('#line' + index).attr('x1', offset.left).attr('y1', offset.top).attr('x2',byteOffset.left).attr('y2',byteOffset.top);
+                var hoveredOffset = $(this).offset();
+                var hoveredWidth = $(this).attr('drawnbytes') * $(this).width();
+                var hoveredHeight = $(this).height();
+
+                $('.hex[position=' + definition[3][0] +']').each(function(index, value) {
+                    var refOffset = $(value).offset();
+                    var refWidth = $(value).attr('drawnbytes') * $(value).width();
+                    var refHeight = $(value).height();
+
+                    var points;
+                    if (hoveredOffset.top > refOffset.top) {
+                        if (hoveredOffset.left < refOffset.left) {
+                            points = [
+                                hoveredOffset.left + ',' + hoveredOffset.top,
+                                (hoveredOffset.left + hoveredWidth) + ',' + hoveredOffset.top,
+                                (hoveredOffset.left + hoveredWidth) + ',' + (hoveredOffset.top + hoveredHeight),
+                                (refOffset.left + refWidth) + ',' + (refOffset.top + refHeight),
+                                refOffset.left + ',' + (refOffset.top + refHeight),
+                                refOffset.left + ',' + refOffset.top
+                            ];
+                        }
+                        else {
+                            points = [
+                                hoveredOffset.left + ',' + (hoveredOffset.top + hoveredHeight),
+                                hoveredOffset.left + ',' + hoveredOffset.top,
+                                (hoveredOffset.left + hoveredWidth) + ',' + hoveredOffset.top,
+                                (refOffset.left + refWidth) + ',' + refOffset.top
+                                (refOffset.left + refWidth) + ',' + (refOffset.top + refHeight),
+                                refOffset.left + ',' + (refOffset.top + refHeight)
+                            ];
+                        }
+                    }
+
+                    var polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                    var fill = $(value).parent().css('background-color');
+                    var stroke = $(value).parent().css('border-top-color');
+                    $('#svg').append($(polygon).attr('points', points.join(' ')).css('fill', fill).css('stroke', stroke));
                 });
-                $('#svg').css('visibility', 'visible');
             }
         }
         else {
@@ -152,7 +182,7 @@ $(function() {
         });
         $('#name').html('&nbsp;')
         $('#filePosition').html('&nbsp;')
-        $('#svg').css('visibility', 'hidden');
+        $('#svg').empty();
     });
 
     $('#prev').click(function(e) {
@@ -332,12 +362,13 @@ function readPage() {
                     }
                     hexRow.append(spacer);
                 }
-                var hexByte = $('<span>').addClass('byte').attr('position', filePosition).text(hex);
+
+                var hexByte = $('<span>').addClass('byte hex').attr('position', filePosition).text(hex);
                 var hexByteWrapper = $('<span>').addClass('byteWrapper').append(hexByte);
                 hexRow.append(hexByteWrapper);
 
                 var character = byte >= 32 && byte <= 126 ? String.fromCharCode(byte) : '\u00B7';
-                var asciiByte = $('<span>').addClass('byte').attr('position', filePosition).text(character);
+                var asciiByte = $('<span>').addClass('byte ascii').attr('position', filePosition).text(character);
                 var asciiByteWrapper = $('<span>').addClass('byteWrapper').append(asciiByte);
                 asciiRow.append(asciiByteWrapper);
 
@@ -345,6 +376,9 @@ function readPage() {
                     var rgb = hsv2rgb(getHue(definition[2]) % 360, 80, 100);
                     colorByte(hexByteWrapper, rgb, filePosition, definition);
                     colorByte(asciiByteWrapper, rgb, filePosition, definition);
+
+                    var drawnBytes = column + definition[1] <= columnCount ? definition[1] : columnCount - column;
+                    hexByte.attr('drawnbytes', drawnBytes);
                 }
             }
         }
@@ -379,10 +413,7 @@ function colorByte(wrapper, rgb, filePosition, definition) {
     <button id="next">Next page</button><br>
     <br>
 
-    <svg id="svg" style="visibility: hidden;">
-        <line id="line0" x1="0" y1="0" x2="0" y2="0"/>
-        <line id="line1" x1="0" y1="0" x2="0" y2="0"/>
-    </svg>
+    <svg id="svg"></svg>
     <span id="filePosition"></span><span id="name">&nbsp;</span><br>
 
     <div id="hexview"></div>

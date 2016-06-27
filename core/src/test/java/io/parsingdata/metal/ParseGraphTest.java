@@ -71,9 +71,9 @@ public class ParseGraphTest {
             .EMPTY
             .add(a)        // [a]
             .add(b)        // [b]
-            .addBranch(t)  //  +---+
+            .addBranch(t, 1) //  +---+
             .add(c)        //  |  [c]
-            .addBranch(t)  //  |   +---+
+            .addBranch(t, 2) //  |   +---+
             .add(d)        //  |   |  [d]
             .add(e)        //  |   |  [e]
             .closeBranch() //  |   +---+
@@ -109,7 +109,7 @@ public class ParseGraphTest {
         return ParseGraph
             .EMPTY
             .add(a)
-            .addBranch(t)
+            .addBranch(t, 0)
             .add(b)
             .add(new ParseRef(a.getOffset(), sub(any("a"), con(a.getOffset())), 0))
             .closeBranch();
@@ -131,19 +131,19 @@ public class ParseGraphTest {
         return ParseGraph
             .EMPTY
             .add(a)
-            .addBranch(t)
-            .addBranch(t)
+            .addBranch(t, 0)
+            .addBranch(t, 1)
             .add(b)
             .closeBranch()
-            .addBranch(t)
+            .addBranch(t, 1)
             .closeBranch()
             .add(c)
-            .addBranch(t)
+            .addBranch(t, 2)
             .add(d)
             .closeBranch()
             .closeBranch()
             .add(e)
-            .addBranch(t)
+            .addBranch(t, 3)
             .add(f)
             .closeBranch();
     }
