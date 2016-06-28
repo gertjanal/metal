@@ -16,6 +16,9 @@
 
 package io.parsingdata.metal.data;
 
+import io.parsingdata.metal.encoding.Encoding;
+import io.parsingdata.metal.token.Token;
+
 public class Environment {
 
     public final ParseGraph order;
@@ -23,28 +26,38 @@ public class Environment {
     public final long offset;
     public final long sequenceId;
 
-    private Environment(final Environment parent, final ParseGraph order, final ByteStream input, final long offset) {
+    private Environment(final ParseGraph order, final ByteStream input, final long offset, final long sequenceId) {
         this.order = order;
         this.input = input;
         this.offset = offset;
-        if (parent == null) {
-            this.sequenceId = 0;
-        }
-        else {
-            this.sequenceId = parent.sequenceId + 1;
-        }
-    }
-
-    public Environment newEnv(final ParseGraph order, final ByteStream input, final long offset) {
-        return new Environment(this, order, input, offset);
+        this.sequenceId = sequenceId;
     }
 
     public Environment(final ByteStream input, final long offset) {
-        this(null, ParseGraph.EMPTY, input, offset);
+        this(ParseGraph.EMPTY, input, offset, 0);
     }
 
     public Environment(final ByteStream input) {
-        this(null, ParseGraph.EMPTY, input, 0L);
+        this(ParseGraph.EMPTY, input, 0L, 0);
+    }
+
+    private Environment newEnv(final ParseGraph order, final ByteStream input, final long offset) {
+        return new Environment(order, input, offset, sequenceId + 1);
+    }
+
+    public Environment addBranch(final Token definition, final long offset) {
+        return newEnv(order.addBranch(definition), input, offset);
+    }
+
+    public Environment addBranch(final Token definition) {
+        return addBranch(definition, offset);
+    }
+
+    public Environment addValue(final String scope, final String name, final Token definition, final long offset, final byte[] data, final int size, final Encoding enc) {
+        final long sequenceId = this.sequenceId + 1;
+        final ParseValue value = new ParseValue(scope, name, definition, size, data, enc, sequenceId);
+        final Environment newEnv = new Environment(order.add(value), input, offset + size, sequenceId);
+        return newEnv;
     }
 
     @Override
@@ -52,4 +65,15 @@ public class Environment {
         return "stream: " + input + "; offset: " + offset + "; order: " + order;
     }
 
+    public Environment closeBranch(final ParseResult res) {
+        return newEnv(res.getEnvironment().order.closeBranch(), res.getEnvironment().input, res.getEnvironment().offset);
+    }
+
+    public Environment addRef(final Token token, final long ref) {
+        return newEnv(order.add(new ParseRef(ref, token)), input, offset);
+    }
+
+    public Environment skip(final long size) {
+        return newEnv(order, input, offset + size);
+    }
 }

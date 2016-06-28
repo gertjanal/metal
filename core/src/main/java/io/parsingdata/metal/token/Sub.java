@@ -21,7 +21,6 @@ import static io.parsingdata.metal.Util.checkNotNull;
 import java.io.IOException;
 
 import io.parsingdata.metal.data.Environment;
-import io.parsingdata.metal.data.ParseRef;
 import io.parsingdata.metal.data.ParseResult;
 import io.parsingdata.metal.encoding.Encoding;
 import io.parsingdata.metal.expression.value.OptionalValue;
@@ -43,13 +42,9 @@ public class Sub extends Token {
         final OptionalValue ov = addr.eval(env, enc);
         if (!ov.isPresent()) { return new ParseResult(false, env); }
         final long ref = ov.get().asNumeric().longValue();
-        if (env.order.hasGraphAtRef(ref)) {
-            return new ParseResult(true, env.newEnv(env.order.add(new ParseRef(ref, this)), env.input, env.offset));
-        }
-        final ParseResult res = op.parse(scope, env.newEnv(env.order.addBranch(this), env.input, ref), enc);
-        if (res.succeeded()) {
-            return new ParseResult(true, env.newEnv(res.getEnvironment().order.closeBranch(), res.getEnvironment().input, env.offset));
-        }
+        if (env.order.hasGraphAtRef(ref)) { return new ParseResult(true, env.addRef(this, ref)); }
+        final ParseResult res = op.parse(scope, env.addBranch(this, ref), enc);
+        if (res.succeeded()) { return new ParseResult(true, env.closeBranch(res)); }
         return new ParseResult(false, env);
     }
 

@@ -22,7 +22,6 @@ import java.io.IOException;
 
 import io.parsingdata.metal.data.Environment;
 import io.parsingdata.metal.data.ParseResult;
-import io.parsingdata.metal.data.ParseValue;
 import io.parsingdata.metal.encoding.Encoding;
 import io.parsingdata.metal.expression.Expression;
 import io.parsingdata.metal.expression.True;
@@ -57,7 +56,7 @@ public class Def extends Token {
         if (env.input.read(env.offset, data) != data.length) {
             return new ParseResult(false, env);
         }
-        final Environment newEnv = env.newEnv(env.order.add(new ParseValue(scope, _name, this, env.offset, data, enc, env.sequenceId + 1)), env.input, env.offset + size.get().asNumeric().intValue());
+        final Environment newEnv = env.addValue(scope, _name, this, env.offset, data, dataSize, enc);
         return _pred.eval(newEnv, enc) ? new ParseResult(true, newEnv) : new ParseResult(false, env);
     }
 
