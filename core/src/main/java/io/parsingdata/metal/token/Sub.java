@@ -44,7 +44,7 @@ public class Sub extends Token {
         final long ref = ov.get().asNumeric().longValue();
         if (env.order.hasGraphAtRef(ref)) { return new ParseResult(true, env.addRef(this, ref)); }
         final ParseResult res = op.parse(scope, env.addBranch(this, ref), enc);
-        if (res.succeeded()) { return new ParseResult(true, env.closeBranch(res)); }
+        if (res.succeeded()) { return new ParseResult(true, res.getEnvironment().closeBranch(env.offset)); }
         return new ParseResult(false, env);
     }
 

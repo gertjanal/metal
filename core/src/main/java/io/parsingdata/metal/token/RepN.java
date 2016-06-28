@@ -42,7 +42,7 @@ public class RepN extends Token {
         final OptionalValue count = _n.eval(env, enc);
         if (!count.isPresent()) { return new ParseResult(false, env); }
         final ParseResult res = iterate(scope, env.addBranch(this), enc, count.get().asNumeric().longValue());
-        if (res.succeeded()) { return new ParseResult(true, env.closeBranch(res)); }
+        if (res.succeeded()) { return new ParseResult(true, res.getEnvironment().closeBranch()); }
         return new ParseResult(false, env);
     }
 

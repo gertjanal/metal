@@ -53,6 +53,10 @@ public class Environment {
         return addBranch(definition, offset);
     }
 
+    public Environment addRef(final Token token, final long ref) {
+        return newEnv(order.add(new ParseRef(ref, token)), input, offset);
+    }
+
     public Environment addValue(final String scope, final String name, final Token definition, final long offset, final byte[] data, final int size, final Encoding enc) {
         final long sequenceId = this.sequenceId + 1;
         final ParseValue value = new ParseValue(scope, name, definition, size, data, enc, sequenceId);
@@ -65,15 +69,15 @@ public class Environment {
         return "stream: " + input + "; offset: " + offset + "; order: " + order;
     }
 
-    public Environment closeBranch(final ParseResult res) {
-        return newEnv(res.getEnvironment().order.closeBranch(), res.getEnvironment().input, res.getEnvironment().offset);
-    }
-
-    public Environment addRef(final Token token, final long ref) {
-        return newEnv(order.add(new ParseRef(ref, token)), input, offset);
-    }
-
     public Environment skip(final long size) {
         return newEnv(order, input, offset + size);
+    }
+
+    public Environment closeBranch(final long offset) {
+        return newEnv(order.closeBranch(), input, offset);
+    }
+
+    public Environment closeBranch() {
+        return closeBranch(offset);
     }
 }
