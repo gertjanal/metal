@@ -28,7 +28,7 @@ public class ParseRefTest {
     @Before
     public void setUp() {
         _definition = sub(def("value", 1), con(0));
-        _ref = new ParseRef(0L, _definition, 0);
+        _ref = new ParseRef(0L, _definition);
     }
 
     @Test

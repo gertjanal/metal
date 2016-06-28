@@ -25,12 +25,10 @@ public class ParseRef implements ParseItem {
 
     public final long location;
     public final Token definition;
-    public final long sequenceId;
 
-    public ParseRef(final long location, final Token definition, final long sequenceId) {
+    public ParseRef(final long location, final Token definition) {
         this.location = location;
         this.definition = checkNotNull(definition, "definition");
-        this.sequenceId = sequenceId;
     }
 
     public ParseGraph resolve(final ParseGraph root) {
@@ -48,11 +46,6 @@ public class ParseRef implements ParseItem {
     @Override
     public String toString() {
         return "ParseRef(" + location + ")";
-    }
-
-    @Override
-    public long getSequenceId() {
-        return sequenceId;
     }
 
 }

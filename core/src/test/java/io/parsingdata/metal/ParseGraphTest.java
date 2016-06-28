@@ -63,7 +63,7 @@ public class ParseGraphTest {
     }
 
     private static ParseValue makeVal(final char n, final long o) {
-        return new ParseValue("", Character.toString(n), def(Character.toString(n), o), o, new byte[]{(byte) n}, enc(), 0);
+        return new ParseValue("", Character.toString(n), def(Character.toString(n), o), o, new byte[] { (byte) n }, enc(), 0);
     }
 
     private ParseGraph makeSimpleGraph() {
@@ -71,9 +71,9 @@ public class ParseGraphTest {
             .EMPTY
             .add(a)        // [a]
             .add(b)        // [b]
-            .addBranch(t, 1) //  +---+
+            .addBranch(t)  //  +---+
             .add(c)        //  |  [c]
-            .addBranch(t, 2) //  |   +---+
+            .addBranch(t)  //  |   +---+
             .add(d)        //  |   |  [d]
             .add(e)        //  |   |  [e]
             .closeBranch() //  |   +---+
@@ -109,9 +109,9 @@ public class ParseGraphTest {
         return ParseGraph
             .EMPTY
             .add(a)
-            .addBranch(t, 0)
+            .addBranch(t)
             .add(b)
-            .add(new ParseRef(a.getOffset(), sub(any("a"), con(a.getOffset())), 0))
+            .add(new ParseRef(a.getOffset(), sub(any("a"), con(a.getOffset()))))
             .closeBranch();
     }
 
@@ -131,19 +131,19 @@ public class ParseGraphTest {
         return ParseGraph
             .EMPTY
             .add(a)
-            .addBranch(t, 0)
-            .addBranch(t, 1)
+            .addBranch(t)
+            .addBranch(t)
             .add(b)
             .closeBranch()
-            .addBranch(t, 1)
+            .addBranch(t)
             .closeBranch()
             .add(c)
-            .addBranch(t, 2)
+            .addBranch(t)
             .add(d)
             .closeBranch()
             .closeBranch()
             .add(e)
-            .addBranch(t, 3)
+            .addBranch(t)
             .add(f)
             .closeBranch();
     }

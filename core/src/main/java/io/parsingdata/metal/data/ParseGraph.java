@@ -36,60 +36,57 @@ public class ParseGraph implements ParseItem {
     public final boolean branched;
     public final Token definition;
     public final long size;
-    public final long sequenceId;
 
     public static final Token NONE = new Token(null) {
         @Override protected ParseResult parseImpl(final String scope, final Environment env, final Encoding enc) throws IOException { throw new IllegalStateException("This placeholder may not be invoked."); }
         @Override public String toString() { return "None"; };
     };
 
-    public static final ParseGraph EMPTY = new ParseGraph(NONE, 0);
+    public static final ParseGraph EMPTY = new ParseGraph(NONE);
 
-    private ParseGraph(final Token definition, final long sequenceId) {
+    private ParseGraph(final Token definition) {
         head = null;
         tail = null;
         branched = false;
         this.definition = checkNotNull(definition, "definition");
-        this.sequenceId = sequenceId;
         size = 0;
     }
 
-    private ParseGraph(final ParseItem head, final ParseGraph tail, final Token definition, final boolean branched, final long sequenceId) {
+    private ParseGraph(final ParseItem head, final ParseGraph tail, final Token definition, final boolean branched) {
         this.head = checkNotNull(head, "head");
         if (head.isValue() && branched) { throw new IllegalArgumentException("Argument branch cannot be true when head contains a ParseValue."); }
         this.tail = checkNotNull(tail, "tail");
         this.branched = branched;
         this.definition = checkNotNull(definition, "definition");
-        this.sequenceId = sequenceId;
         size = tail.size + 1;
     }
 
     // TODO see ByItem, this constructor used to be private
-    public ParseGraph(final ParseItem head, final ParseGraph tail, final Token definition, final long sequenceId) {
-        this(head, tail, definition, false, sequenceId);
+    public ParseGraph(final ParseItem head, final ParseGraph tail, final Token definition) {
+        this(head, tail, definition, false);
     }
 
     public ParseGraph add(final ParseValue head) {
-        if (branched) { return new ParseGraph(this.head.asGraph().add(head), tail, this.definition, true, sequenceId); }
-        return new ParseGraph(head, this, this.definition, sequenceId);
+        if (branched) { return new ParseGraph(this.head.asGraph().add(head), tail, this.definition, true); }
+        return new ParseGraph(head, this, this.definition);
     }
 
     public ParseGraph add(final ParseRef ref) {
-        if (branched) { return new ParseGraph(this.head.asGraph().add(ref), tail, this.definition, true, sequenceId); }
-        return new ParseGraph(ref, this, this.definition, sequenceId);
+        if (branched) { return new ParseGraph(this.head.asGraph().add(ref), tail, this.definition, true); }
+        return new ParseGraph(ref, this, this.definition);
     }
 
-    public ParseGraph addBranch(final Token definition, final long sequenceId) {
-        if (branched) { return new ParseGraph(this.head.asGraph().addBranch(definition, sequenceId + 1), tail, this.definition, true, sequenceId + 1); }
-        return new ParseGraph(new ParseGraph(definition, sequenceId), this, this.definition, true, sequenceId);
+    public ParseGraph addBranch(final Token definition) {
+        if (branched) { return new ParseGraph(this.head.asGraph().addBranch(definition), tail, this.definition, true); }
+        return new ParseGraph(new ParseGraph(definition), this, this.definition, true);
     }
 
     public ParseGraph closeBranch() {
         if (!branched) { throw new IllegalStateException("Cannot close branch that is not open."); }
         if (head.asGraph().branched) {
-            return new ParseGraph(head.asGraph().closeBranch(), tail, this.definition, true, sequenceId);
+            return new ParseGraph(head.asGraph().closeBranch(), tail, this.definition, true);
         }
-        return new ParseGraph(head, tail, this.definition, false, sequenceId);
+        return new ParseGraph(head, tail, this.definition, false);
     }
 
     public ParseGraphList getRefs() {
@@ -156,11 +153,6 @@ public class ParseGraph implements ParseItem {
      */
     public ParseGraph getGraphAfter(final ParseItem lastHead) {
         return ByItem.getGraphAfter(this, lastHead);
-    }
-
-    @Override
-    public long getSequenceId() {
-        return sequenceId;
     }
 
     @Override public boolean isValue() { return false; }

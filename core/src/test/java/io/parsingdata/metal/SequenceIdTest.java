@@ -15,6 +15,7 @@ import org.junit.Test;
 import io.parsingdata.metal.data.Environment;
 import io.parsingdata.metal.data.ParseItem;
 import io.parsingdata.metal.data.ParseResult;
+import io.parsingdata.metal.data.ParseValue;
 import io.parsingdata.metal.token.Token;
 import io.parsingdata.metal.util.EnvironmentFactory;
 
@@ -54,11 +55,10 @@ public class SequenceIdTest {
             return;
         }
 
-        if (!item.isGraph()) {
-            builder.append("[" + item.getSequenceId() + "] value: " + item.asValue().name + "\n");
+        if (item.isValue()) {
+            builder.append("[" + ((ParseValue) item).sequenceId + "] value: " + item.asValue().name + "\n");
             return;
         }
-        builder.append("[" + item.getSequenceId() + "] graph: " + item.getDefinition().getClass().getSimpleName() + "\n");
 
         step(item.asGraph().tail, builder);
         step(item.asGraph().head, builder);

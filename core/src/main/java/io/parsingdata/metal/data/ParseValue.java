@@ -74,9 +74,4 @@ public class ParseValue extends Value implements ParseItem {
         return "ParseValue(" + getName() + ":" + super.toString() + ")";
     }
 
-    @Override
-    public long getSequenceId() {
-        return sequenceId;
-    }
-
 }
