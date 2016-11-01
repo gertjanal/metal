@@ -22,7 +22,7 @@ public class ProveTest {
 
     @Test
     public void test() throws Exception {
-        final Environment environment = stream(0x09, 0x00); // binary: 0000 0000 0000 0101
+        final Environment environment = stream(0x09, 0x00); // binary: 0000 0000 0000 1001
         final Token token = def("value", 2, state(1));
 
         final ParseResult result = token.parse(environment, le());
